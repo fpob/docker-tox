@@ -105,6 +105,7 @@ build-latest:
 test-latest:
   stage: test
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  dependencies: []
   script:
     - cd tests
     - tox
@@ -113,6 +114,7 @@ test-latest:
 publish-gitlab-latest:
   extends: .docker
   stage: publish
+  dependencies: []
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
@@ -128,6 +130,7 @@ publish-gitlab-latest:
 publish-dockerhub-latest:
   extends: .docker
   stage: publish
+  dependencies: []
   before_script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD $DOCKERHUB
   script:
