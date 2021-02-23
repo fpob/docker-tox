@@ -1,0 +1,143 @@
+stages:
+  - prepare
+  - build-python
+  - build
+  - test
+  - publish
+
+
+.docker:
+  image: docker:stable
+  services:
+    - docker:stable-dind
+
+
+prepare-build-image:
+  extends: .docker
+  stage: prepare
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA build
+    - docker push $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
+
+
+build-python36:
+  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
+  stage: build-python
+  script:
+    - /build-python.sh 3.6.13
+    - mkdir -p opt && mv /opt/python3.6 opt
+  artifacts:
+    paths:
+      - opt/python3.6
+    expire_in: 1 day
+
+build-python37:
+  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
+  stage: build-python
+  script:
+    - /build-python.sh 3.7.10
+    - mkdir -p opt && mv /opt/python3.7 opt
+  artifacts:
+    paths:
+      - opt/python3.7
+    expire_in: 1 day
+
+build-python38:
+  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
+  stage: build-python
+  script:
+    - /build-python.sh 3.8.8
+    - mkdir -p opt && mv /opt/python3.8 opt
+  artifacts:
+    paths:
+      - opt/python3.8
+    expire_in: 1 day
+
+build-python39:
+  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
+  stage: build-python
+  script:
+    - /build-python.sh 3.9.2
+    - mkdir -p opt && mv /opt/python3.9 opt
+  artifacts:
+    paths:
+      - opt/python3.9
+    expire_in: 1 day
+
+build-pypy36:
+  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
+  stage: build-python
+  script:
+    - /build-pypy.sh 3.6 7.3.3
+    - mkdir -p opt && mv /opt/pypy3.6 opt
+  artifacts:
+    paths:
+      - opt/pypy3.6
+    expire_in: 1 day
+
+build-pypy37:
+  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
+  stage: build-python
+  script:
+    - /build-pypy.sh 3.7 7.3.3
+    - mkdir -p opt && mv /opt/pypy3.7 opt
+  artifacts:
+    paths:
+      - opt/pypy3.7
+    expire_in: 1 day
+
+
+build-latest:
+  extends: .docker
+  stage: build
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build
+        --build-arg DEFAULT_PYTHON=3.9
+        --build-arg DEFAULT_PYPY=3.7
+        -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+
+test-latest:
+  stage: test
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  script:
+    - cd tests
+    - tox
+
+
+publish-gitlab-latest:
+  extends: .docker
+  stage: publish
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$SRC_TAG
+    - docker tag $CI_REGISTRY_IMAGE:$SRC_TAG $CI_REGISTRY_IMAGE:$DST_TAG
+    - docker push $CI_REGISTRY_IMAGE:$DST_TAG
+  only:
+    - master
+  variables:
+    SRC_TAG: $CI_COMMIT_SHORT_SHA
+    DST_TAG: latest
+
+publish-dockerhub-latest:
+  extends: .docker
+  stage: publish
+  before_script:
+    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD $DOCKERHUB
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$SRC_TAG
+    - docker tag $CI_REGISTRY_IMAGE:$SRC_TAG $DOCKERHUB_IMAGE:$DST_TAG
+    - docker push $DOCKERHUB_IMAGE:$DST_TAG
+  only:
+    - master
+  variables:
+    DOCKERHUB: docker.io
+    DOCKERHUB_IMAGE: docker.io/fpob/tox
+    SRC_TAG: $CI_COMMIT_SHORT_SHA
+    DST_TAG: latest
