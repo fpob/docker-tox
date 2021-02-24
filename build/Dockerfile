@@ -26,5 +26,5 @@ RUN apt-get update \
     && apt-get build-dep -y python3 \
     && apt-get clean
 
-COPY ["build-python.sh", "build-pypy.sh", "/"]
-RUN chmod +x /build-python.sh /build-pypy.sh
+COPY ["build-python.sh", "build-pypy.sh", "cleanup.sh", "/"]
+RUN chmod +x /build-python.sh /build-pypy.sh /cleanup.sh

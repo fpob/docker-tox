@@ -17,7 +17,4 @@ make
 make install
 
 # Try to reduce size...
-cd /opt/python$VERSION
-strip bin/* || true
-find -name '*.so' -exec strip '{}' ';' || true
-find -name '*.exe' -delete || true
+/cleanup.sh /opt/python$VERSION
