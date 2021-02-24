@@ -5,6 +5,7 @@ ARG DEFAULT_PYPY
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -yV \
+        build-essential \
         libbz2-1.0 \
         libc6 \
         libffi6 \
