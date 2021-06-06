@@ -16,5 +16,4 @@ cd Python-$VERSION.$PATCH
 make
 make install
 
-# Try to reduce size...
 /cleanup.sh /opt/python$VERSION
