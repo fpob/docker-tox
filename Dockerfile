@@ -1,4 +1,4 @@
-FROM debian:stable-slim
+FROM debian:bullseye-slim
 
 ARG DEFAULT_PYTHON
 ARG DEFAULT_PYPY
@@ -10,13 +10,13 @@ RUN apt-get update \
         libc-dev \
         libbz2-1.0 \
         libc6 \
-        libffi6 \
+        libffi7 \
         libgdbm6 \
         liblzma5 \
         libncurses5 \
         libncursesw5 \
         libpq5 \
-        libreadline7 \
+        libreadline8 \
         libsqlite3-0 \
         libssl1.1 \
         openssl \
