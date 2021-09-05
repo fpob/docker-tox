@@ -66,17 +66,6 @@ build-python39:
       - opt/python3.9
     expire_in: 1 day
 
-build-pypy36:
-  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-python
-  script:
-    - /build-pypy.sh 3.6 7.3.3
-    - mkdir -p opt && mv /opt/pypy3.6 opt
-  artifacts:
-    paths:
-      - opt/pypy3.6
-    expire_in: 1 day
-
 build-pypy37:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
   stage: build-python
