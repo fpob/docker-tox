@@ -66,6 +66,17 @@ build-python39:
       - opt/python3.9
     expire_in: 1 day
 
+build-python310:
+  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
+  stage: build-python
+  script:
+    - /build-python.sh 3.10.0
+    - mkdir -p opt && mv /opt/python3.10 opt
+  artifacts:
+    paths:
+      - opt/python3.10
+    expire_in: 1 day
+
 build-pypy37:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
   stage: build-python
@@ -85,7 +96,7 @@ build-latest:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker build
-        --build-arg DEFAULT_PYTHON=3.9
+        --build-arg DEFAULT_PYTHON=3.10
         --build-arg DEFAULT_PYPY=3.7
         -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA

@@ -7,6 +7,7 @@ Python and PyPy versions.
 * Python 3.7
 * Python 3.8
 * Python 3.9
+* Python 3.10
 * PyPy 3.7
 
 
