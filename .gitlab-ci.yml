@@ -88,6 +88,17 @@ build-pypy37:
       - opt/pypy3.7
     expire_in: 1 day
 
+build-pypy38:
+  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
+  stage: build-python
+  script:
+    - /scripts/build-pypy.sh 3.8 7.3
+    - mkdir -p opt && mv /opt/pypy3.8 opt
+  artifacts:
+    paths:
+      - opt/pypy3.8
+    expire_in: 1 day
+
 
 build-latest:
   extends: .docker
@@ -97,7 +108,7 @@ build-latest:
   script:
     - docker build
         --build-arg DEFAULT_PYTHON=3.10
-        --build-arg DEFAULT_PYPY=3.7
+        --build-arg DEFAULT_PYPY=3.8
         -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
 

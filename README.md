@@ -9,6 +9,7 @@ Python and PyPy versions.
 * Python 3.9
 * Python 3.10
 * PyPy 3.7
+* PyPy 3.8
 
 
 ## Example usage
