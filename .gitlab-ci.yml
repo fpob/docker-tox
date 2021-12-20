@@ -26,7 +26,7 @@ build-python36:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
   stage: build-python
   script:
-    - /build-python.sh 3.6.15
+    - /scripts/build-python.sh 3.6
     - mkdir -p opt && mv /opt/python3.6 opt
   artifacts:
     paths:
@@ -37,7 +37,7 @@ build-python37:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
   stage: build-python
   script:
-    - /build-python.sh 3.7.12
+    - /scripts/build-python.sh 3.7
     - mkdir -p opt && mv /opt/python3.7 opt
   artifacts:
     paths:
@@ -48,7 +48,7 @@ build-python38:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
   stage: build-python
   script:
-    - /build-python.sh 3.8.12
+    - /scripts/build-python.sh 3.8
     - mkdir -p opt && mv /opt/python3.8 opt
   artifacts:
     paths:
@@ -59,7 +59,7 @@ build-python39:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
   stage: build-python
   script:
-    - /build-python.sh 3.9.7
+    - /scripts/build-python.sh 3.9
     - mkdir -p opt && mv /opt/python3.9 opt
   artifacts:
     paths:
@@ -70,7 +70,7 @@ build-python310:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
   stage: build-python
   script:
-    - /build-python.sh 3.10.0
+    - /scripts/build-python.sh 3.10
     - mkdir -p opt && mv /opt/python3.10 opt
   artifacts:
     paths:
@@ -81,7 +81,7 @@ build-pypy37:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
   stage: build-python
   script:
-    - /build-pypy.sh 3.7 7.3.5
+    - /scripts/build-pypy.sh 3.7 7.3
     - mkdir -p opt && mv /opt/pypy3.7 opt
   artifacts:
     paths:

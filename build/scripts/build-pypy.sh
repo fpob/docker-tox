@@ -1,8 +1,8 @@
 #!/bin/bash
-set -ex
+set -eux
 
 PYTHON_VERSION=$1
-PYPY_VERSION=$2
+PYPY_VERSION=$(python3 /scripts/find-pypy-version.py $1 $2)
 
 cd /tmp
 
@@ -15,4 +15,4 @@ mv pypy$PYTHON_VERSION-v$PYPY_VERSION-linux64 /opt/pypy$PYTHON_VERSION
 # avoid conflicts with CPython.
 rm -f /opt/pypy$PYTHON_VERSION/bin/python*
 
-/cleanup.sh /opt/pypy$PYTHON_VERSION
+/scripts/cleanup.sh /opt/pypy$PYTHON_VERSION

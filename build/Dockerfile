@@ -23,8 +23,9 @@ RUN apt-get update \
         zlib1g-dev \
         liblzma-dev \
         tk-dev \
+        python3 \
+        python3-requests \
     && apt-get build-dep -y python3 \
     && apt-get clean
 
-COPY ["build-python.sh", "build-pypy.sh", "cleanup.sh", "/"]
-RUN chmod +x /build-python.sh /build-pypy.sh /cleanup.sh
+COPY scripts /scripts

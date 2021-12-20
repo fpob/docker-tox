@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Try to reduce size...
 find "$1" -type f \( -name '*.so' -o -path '*/bin/*' \) -exec strip '{}' +
