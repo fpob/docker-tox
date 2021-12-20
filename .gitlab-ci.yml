@@ -1,6 +1,6 @@
 stages:
   - prepare
-  - build-python
+  - build-py
   - build
   - test
   - publish
@@ -15,97 +15,54 @@ stages:
 prepare-build-image:
   extends: .docker
   stage: prepare
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA build
     - docker push $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
 
 
-build-python36:
+build-python:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-python
+  stage: build-py
   script:
-    - /scripts/build-python.sh 3.6
-    - mkdir -p opt && mv /opt/python3.6 opt
+    - /scripts/build-python.sh $VERSION
+    - mkdir -p opt && mv /opt/python$VERSION opt
   artifacts:
     paths:
-      - opt/python3.6
+      - opt/python$VERSION
     expire_in: 1 day
+  parallel:
+    matrix:
+      - VERSION:
+          - '3.6'
+          - '3.7'
+          - '3.8'
+          - '3.9'
+          - '3.10'
 
-build-python37:
+build-pypy:
   image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-python
+  stage: build-py
   script:
-    - /scripts/build-python.sh 3.7
-    - mkdir -p opt && mv /opt/python3.7 opt
+    - /scripts/build-pypy.sh $PYTHON_VERSION $PYPY_VERSION
+    - mkdir -p opt && mv /opt/pypy$PYTHON_VERSION opt
   artifacts:
     paths:
-      - opt/python3.7
+      - opt/pypy$PYTHON_VERSION
     expire_in: 1 day
-
-build-python38:
-  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-python
-  script:
-    - /scripts/build-python.sh 3.8
-    - mkdir -p opt && mv /opt/python3.8 opt
-  artifacts:
-    paths:
-      - opt/python3.8
-    expire_in: 1 day
-
-build-python39:
-  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-python
-  script:
-    - /scripts/build-python.sh 3.9
-    - mkdir -p opt && mv /opt/python3.9 opt
-  artifacts:
-    paths:
-      - opt/python3.9
-    expire_in: 1 day
-
-build-python310:
-  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-python
-  script:
-    - /scripts/build-python.sh 3.10
-    - mkdir -p opt && mv /opt/python3.10 opt
-  artifacts:
-    paths:
-      - opt/python3.10
-    expire_in: 1 day
-
-build-pypy37:
-  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-python
-  script:
-    - /scripts/build-pypy.sh 3.7 7.3
-    - mkdir -p opt && mv /opt/pypy3.7 opt
-  artifacts:
-    paths:
-      - opt/pypy3.7
-    expire_in: 1 day
-
-build-pypy38:
-  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-python
-  script:
-    - /scripts/build-pypy.sh 3.8 7.3
-    - mkdir -p opt && mv /opt/pypy3.8 opt
-  artifacts:
-    paths:
-      - opt/pypy3.8
-    expire_in: 1 day
+  parallel:
+    matrix:
+      - PYTHON_VERSION:
+          - '3.7'
+          - '3.8'
+        PYPY_VERSION: '7.3'
 
 
 build-latest:
   extends: .docker
   stage: build
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build
         --build-arg DEFAULT_PYTHON=3.10
         --build-arg DEFAULT_PYPY=3.8
@@ -120,38 +77,34 @@ test-latest:
   script:
     - cd tests
     - tox
+  variables:
+    TOXENV: py36,py37,py38,py39,py310,pypy37,pypy38
 
+
+.publish-latest:
+  extends: .docker
+  stage: publish
+  dependencies: []
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $REGISTRY_IMAGE:latest
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD $REGISTRY
+    - docker push $REGISTRY_IMAGE:latest
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 publish-gitlab-latest:
-  extends: .docker
-  stage: publish
-  dependencies: []
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker pull $CI_REGISTRY_IMAGE:$SRC_TAG
-    - docker tag $CI_REGISTRY_IMAGE:$SRC_TAG $CI_REGISTRY_IMAGE:$DST_TAG
-    - docker push $CI_REGISTRY_IMAGE:$DST_TAG
-  only:
-    - master
+  extends: .publish-latest
   variables:
-    SRC_TAG: $CI_COMMIT_SHORT_SHA
-    DST_TAG: latest
+    REGISTRY: $CI_REGISTRY
+    REGISTRY_USER: $CI_REGISTRY_USER
+    REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
+    REGISTRY_IMAGE: $CI_REGISTRY_IMAGE
 
 publish-dockerhub-latest:
-  extends: .docker
-  stage: publish
-  dependencies: []
-  before_script:
-    - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD $DOCKERHUB
-  script:
-    - docker pull $CI_REGISTRY_IMAGE:$SRC_TAG
-    - docker tag $CI_REGISTRY_IMAGE:$SRC_TAG $DOCKERHUB_IMAGE:$DST_TAG
-    - docker push $DOCKERHUB_IMAGE:$DST_TAG
-  only:
-    - master
+  extends: .publish-latest
   variables:
-    DOCKERHUB: docker.io
-    DOCKERHUB_IMAGE: docker.io/fpob/tox
-    SRC_TAG: $CI_COMMIT_SHORT_SHA
-    DST_TAG: latest
+    REGISTRY: docker.io
+    REGISTRY_USER: $DOCKERHUB_USER
+    REGISTRY_PASSWORD: $DOCKERHUB_PASSWORD
+    REGISTRY_IMAGE: docker.io/fpob/tox
