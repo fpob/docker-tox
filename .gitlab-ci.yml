@@ -34,7 +34,6 @@ build-python:
   parallel:
     matrix:
       - VERSION:
-          - '3.6'
           - '3.7'
           - '3.8'
           - '3.9'
@@ -78,7 +77,7 @@ test-latest:
     - cd tests
     - tox
   variables:
-    TOXENV: py36,py37,py38,py39,py310,pypy37,pypy38
+    TOXENV: py37,py38,py39,py310,pypy37,pypy38
 
 
 .publish-latest:

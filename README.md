@@ -3,7 +3,6 @@
 Image for running [tox](https://tox.readthedocs.org/en/latest/) with multiple
 Python and PyPy versions.
 
-* Python 3.6
 * Python 3.7
 * Python 3.8
 * Python 3.9
