@@ -15,5 +15,5 @@ Python and PyPy versions.
 ## Example usage
 
 ```sh
-docker run -v $PWD:/workdir registry.gitlab.com/fpob/tox-docker tox
+docker run -v $PWD:/workdir registry.gitlab.com/fpob-dev/docker/tox tox
 ```
