@@ -1,6 +1,4 @@
 stages:
-  - prepare
-  - build-py
   - build
   - test
   - publish
@@ -12,79 +10,26 @@ stages:
     - docker:stable-dind
 
 
-prepare-build-image:
-  extends: .docker
-  stage: prepare
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build -t $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA build
-    - docker push $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-
-
-build-python:
-  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-py
-  script:
-    - /scripts/build-python.sh $VERSION
-    - mkdir -p opt && mv /opt/python$VERSION opt
-  artifacts:
-    paths:
-      - opt/python$VERSION
-    expire_in: 1 day
-  parallel:
-    matrix:
-      - VERSION:
-          - '3.7'
-          - '3.8'
-          - '3.9'
-          - '3.10'
-
-build-pypy:
-  image: $CI_REGISTRY_IMAGE/build:$CI_COMMIT_SHORT_SHA
-  stage: build-py
-  script:
-    - /scripts/build-pypy.sh $PYTHON_VERSION $PYPY_VERSION
-    - mkdir -p opt && mv /opt/pypy$PYTHON_VERSION opt
-  artifacts:
-    paths:
-      - opt/pypy$PYTHON_VERSION
-    expire_in: 1 day
-  parallel:
-    matrix:
-      - PYTHON_VERSION:
-          - '3.7'
-          - '3.8'
-          - '3.9'
-        PYPY_VERSION: '7.3'
-
-
-build-latest:
+build:
   extends: .docker
   stage: build
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build
-        --build-arg DEFAULT_PYTHON=3.10
-        --build-arg DEFAULT_PYPY=3.9
-        -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
 
 
-test-latest:
+test:
   stage: test
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
-  dependencies: []
   script:
     - cd tests
     - tox
-  variables:
-    TOXENV: py37,py38,py39,py310,pypy37,pypy38,pypy39
 
 
-.publish-latest:
+.publish:
   extends: .docker
   stage: publish
-  dependencies: []
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $REGISTRY_IMAGE:latest
@@ -93,16 +38,16 @@ test-latest:
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
-publish-gitlab-latest:
-  extends: .publish-latest
+publish-gitlab:
+  extends: .publish
   variables:
     REGISTRY: $CI_REGISTRY
     REGISTRY_USER: $CI_REGISTRY_USER
     REGISTRY_PASSWORD: $CI_REGISTRY_PASSWORD
     REGISTRY_IMAGE: $CI_REGISTRY_IMAGE
 
-publish-dockerhub-latest:
-  extends: .publish-latest
+publish-dockerhub:
+  extends: .publish
   variables:
     REGISTRY: docker.io
     REGISTRY_USER: $DOCKERHUB_USER
