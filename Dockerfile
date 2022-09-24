@@ -1,4 +1,4 @@
-FROM debian:bullseye AS builder
+FROM docker.io/library/debian:bullseye AS builder
 
 # Add deb-src to sources.list
 RUN find /etc/apt/sources.list* -type f -exec sed -i 'p; s/^deb /deb-src /' '{}' +
@@ -24,7 +24,6 @@ RUN apt-get update \
         liblzma-dev \
         tk-dev \
         python3 \
-        python3-requests \
     && apt-get build-dep -y python3
 
 COPY scripts /scripts
@@ -40,7 +39,7 @@ RUN /scripts/build-pypy.sh '3.8' '7.3'
 RUN /scripts/build-pypy.sh '3.9' '7.3'
 
 
-FROM debian:bullseye-slim
+FROM docker.io/library/debian:bullseye-slim
 
 ARG DEFAULT_PYTHON=3.10
 ARG DEFAULT_PYPY=3.9
@@ -74,7 +73,6 @@ ENV PATH="/opt/python${DEFAULT_PYTHON}/bin:/opt/pypy${DEFAULT_PYPY}/bin:${PATH}"
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
 
-RUN pip3 --no-cache-dir install setuptools wheel tox
+RUN python3 -m ensurepip && pip3 --no-cache-dir install setuptools wheel tox
 
-WORKDIR /workdir
 CMD ["tox"]
