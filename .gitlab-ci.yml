@@ -3,9 +3,9 @@ variables:
 
 
 build:
-  image: docker.io/library/docker:stable
+  image: docker.io/library/docker:20.10
   services:
-    - docker.io/library/docker:stable-dind
+    - docker.io/library/docker:20.10-dind
   stage: build
   script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD docker.io
