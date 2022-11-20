@@ -34,6 +34,7 @@ RUN /scripts/build-python.sh '3.7'
 RUN /scripts/build-python.sh '3.8'
 RUN /scripts/build-python.sh '3.9'
 RUN /scripts/build-python.sh '3.10'
+RUN /scripts/build-python.sh '3.11'
 RUN /scripts/build-pypy.sh '3.7' '7.3'
 RUN /scripts/build-pypy.sh '3.8' '7.3'
 RUN /scripts/build-pypy.sh '3.9' '7.3'
@@ -41,7 +42,7 @@ RUN /scripts/build-pypy.sh '3.9' '7.3'
 
 FROM docker.io/library/debian:bullseye-slim
 
-ARG DEFAULT_PYTHON=3.10
+ARG DEFAULT_PYTHON=3.11
 ARG DEFAULT_PYPY=3.9
 
 RUN apt-get update \
