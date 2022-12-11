@@ -5,7 +5,8 @@ variables:
 build:
   image: docker.io/library/docker:20.10
   services:
-    - docker.io/library/docker:20.10-dind
+    - name: docker.io/library/docker:20.10-dind
+      alias: docker
   stage: build
   script:
     - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD docker.io
