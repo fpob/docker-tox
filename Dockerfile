@@ -35,7 +35,6 @@ RUN /scripts/build-python.sh '3.8'
 RUN /scripts/build-python.sh '3.9'
 RUN /scripts/build-python.sh '3.10'
 RUN /scripts/build-python.sh '3.11'
-RUN /scripts/build-pypy.sh '3.7' '7.3'
 RUN /scripts/build-pypy.sh '3.8' '7.3'
 RUN /scripts/build-pypy.sh '3.9' '7.3'
 
