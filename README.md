@@ -5,13 +5,13 @@ Python and PyPy versions.
 
 Contains all supported Python and PyPy versions.
 
-* Python 3.7
 * Python 3.8
 * Python 3.9
 * Python 3.10
 * Python 3.11
-* PyPy 3.8
+* Python 3.12
 * PyPy 3.9
+* PyPy 3.10
 
 Image is automatically updated every month with the latest Python versions.
 Before pushing to Docker hub, the image is tested on a simple project to make

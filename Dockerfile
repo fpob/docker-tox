@@ -30,13 +30,13 @@ COPY scripts /scripts
 
 # When updating versions, it is also necessary to update 'tests/tox.ini' file
 # and `DEFAULT_*` variables below.
-RUN /scripts/build-python.sh '3.7'
 RUN /scripts/build-python.sh '3.8'
 RUN /scripts/build-python.sh '3.9'
 RUN /scripts/build-python.sh '3.10'
 RUN /scripts/build-python.sh '3.11'
-RUN /scripts/build-pypy.sh '3.8' '7.3'
+RUN /scripts/build-python.sh '3.12'
 RUN /scripts/build-pypy.sh '3.9' '7.3'
+RUN /scripts/build-pypy.sh '3.10' '7.3'
 
 
 FROM docker.io/library/debian:bullseye-slim
